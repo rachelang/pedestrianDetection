@@ -1,1 +1,6 @@
 .asv
+nonpedTest.mat
+nonpedTrain.mat
+pedOccludedTest.mat
+pedTest.mat
+pedTrain.mat
