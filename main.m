@@ -3,9 +3,9 @@ clear; close all; clc
 addpath('./data'); addpath('./lib');
 
 % neural network specifications
-num_hidden_layers = 6;  % will be varied to get best result
+num_hidden_layers = 1;  % will be varied to get best result
 input_layer_size = 3024;
-hidden_layer_size = 5;
+hidden_layer_size = 40;
 num_labels = 2;
 
 nn_specs = [num_hidden_layers, input_layer_size, hidden_layer_size, num_labels];
@@ -86,8 +86,9 @@ while(img_h <= min_img_h)
         while(start_x + 36 - 1 <= img_w)
             window = test_img(start_y:start_y + 84 - 1, start_x:start_x + 36 - 1);
             y_pred = predict(Theta, rollParameters(window));
+            y_pred
             if(y_pred == 1)
-                
+                drawBorder(test_img, start_x, start_y, 84, 36);
             end
             start_x = start_x + w_incr;
         end
