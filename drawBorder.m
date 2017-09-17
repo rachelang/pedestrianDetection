@@ -1,9 +1,9 @@
-function border_img = drawBorder(test_img, start_x, start_y, h, w)
+function border_img = drawBorder(img, start_x, start_y, h, w)
 
-    test_img(start_y, start_x:start_x + w) = 1;
-    test_img(start_y + h, start_x:start_x + w) = 1;
-    test_img(start_y:start_y + h, start_x) = 1;
-    test_img(start_y:start_y + h, start_x + w) = 1;
-    
-    border_img = test_img;
+    img(start_y, start_x:start_x + w - 1) = 1;
+    img(start_y + h - 1, start_x:start_x + w - 1) = 1;
+    img(start_y:start_y + h - 1, start_x) = 1;
+    img(start_y:start_y + h - 1, start_x + w - 1) = 1;
+
+    border_img = img;
 end

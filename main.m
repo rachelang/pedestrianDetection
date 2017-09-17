@@ -5,7 +5,7 @@ addpath('./data'); addpath('./lib');
 % neural network specifications
 num_hidden_layers = 1;  % will be varied to get best result
 input_layer_size = 3024;
-hidden_layer_size = 50;
+hidden_layer_size = 150;
 num_labels = 1;
 
 nn_specs = [num_hidden_layers, input_layer_size, hidden_layer_size, num_labels];
@@ -19,8 +19,8 @@ y_test_all = [ones(25608, 1); zeros(16235, 1)];
 % partition data (because of personal slow machine,
 % only chose some of dataset)
 rand_train = randperm(size(X_train_all, 1));
-X_train = X_train_all(rand_train(1:40000), :);
-y_train = y_train_all(rand_train(1:40000), :);
+X_train = X_train_all; %(rand_train(1:40000), :);
+y_train = y_train_all; %(rand_train(1:40000), :);
 
 halfTest = round(size(X_test_all, 1) / 2);
 rand_cv = randperm(halfTest); % half of test set -> cv
@@ -30,9 +30,6 @@ y_cv = y_test_all(rand_cv(1:8000), :);
 rand_test = randperm(size(X_test_all, 1) - halfTest) + halfTest; % half of test set -> test
 X_test = X_test_all(rand_cv(1:8000), :);
 y_test = y_test_all(rand_cv(1:8000), :);
-
-% visualize data
-% displayData(reshape(X_train(123, :), 84, 36));
 
 % Neural Network Training
 % -----------------------
@@ -52,16 +49,29 @@ lambda_vec = 0.01; %[0 0.001 0.003 0.01 0.03 0.1 0.3 1 3 10];
 Theta = reshapeParams(ThetaRolled, num_hidden_layers, ...
                                    input_layer_size, ...
                                    hidden_layer_size, ...
-                                   num_labels);                                          
+                                   num_labels); 
+
+                               %%%%%%%%%%%%%
+                               %Theta = importdata('theta.mat');
+y_pred = predict(Theta, X_train); %%%%%%
+fprintf('\nTrain Set Accuracy: %f\n', mean(double(y_pred == y_train)) * 100);
+
 y_pred = predict(Theta, X_test);
-fprintf('\nTest Set Accuracy: %f\n', mean(double(y_pred == y_test)) * 100);
+fprintf('\nTest Set Accuracy: %f\n', mean(double(y_pred == y_test)) * 100); %%%%%%%
+
 [test_cost, ~] = costFunction(ThetaRolled, num_hidden_layers, ...
                                    input_layer_size, ...
                                    hidden_layer_size, ...
                                    num_labels, ...
                                    X_test, y_test, bestLambda);
+
 fprintf('\nTest Set error: %f\n', test_cost);
-                                             
+                                         
+y_pred = predict(Theta, X_test_all(1:1000, :)); %%%%%%5
+fprintf('\nPos test Set Accuracy: %f\n', mean(double(y_pred == y_test_all(1:1000, :)) * 100)); %%%%%%%
+y_pred = predict(Theta, X_test_all(30000:31000, :)); %%%%%%5
+fprintf('\nNon pos test Set Accuracy: %f\n', mean(double(y_pred == y_test_all(30000:31000, :)) * 100)); %%%%%%%
+
 % save trained theta
 save theta.mat Theta;
 
@@ -73,23 +83,27 @@ legend('Train', 'Cross Validation')
 xlabel('Lambda')
 ylabel('Error')
 
-%Theta = importdata('theta.mat');
+% detection constants
+scale = 2;
+inc_percent = 0.3;
+min_img_percent = 0.3;
 
 % load detection test image
 test_img = bmpToMatrix('sidewalk_242.bmp');
-rescale(test_img, 3);
-scale = 3;
+border_img = test_img;
+test_img = rescale(test_img, scale);
 [img_h, img_w] = size(test_img);
-min_img_h = round(img_h*0.1);
+min_img_h = round(img_h*min_img_percent);
 
 % Sliding Window algorithm
-border_img = test_img;
 start_x = 1; start_y = 1;
-h_incr = max(round(84*0.1), 1);
-w_incr = max(round(36*0.1), 1);
+h_incr = max(round(84*inc_percent), 1);
+w_incr = max(round(36*inc_percent), 1);
+num_people = 0;
 
-fprintf('Starting sliding window detection: pyramid layers\n');
-a = 0; %%%%%%%%%%
+fprintf('Sliding Window Detection: pyramid layers\n');
+fprintf('----------------------------------------\n');
+
 while(img_h > min_img_h)
     while(start_y + 84 - 1 <= img_h)
         while(start_x + 36 - 1 <= img_w)
@@ -98,8 +112,11 @@ while(img_h > min_img_h)
             
             if(y_pred == 1)
                 a = a+1;
-                border_img = drawBorder(border_img, start_x, start_y, ...
-                                        84, 36);
+                border_img = drawBorder(border_img, max(floor(start_x/scale), 1), max(floor(start_y/scale), 1), ...
+                                        floor(84/scale), floor(36/scale));
+                % all images of people detected
+                figure;
+                displayData(window);
             end
             start_x = start_x + w_incr;
         end
@@ -107,10 +124,12 @@ while(img_h > min_img_h)
         start_y = start_y + h_incr;
     end
     start_y = 1;
+    
     test_img = rescale(test_img, 0.9);
-    scale = scale*0.9;
     [img_h, img_w] = size(test_img);
+    scale = scale*0.9;
 end
 
-a
+% Final detection image
 displayData(border_img);
+fprintf('Number of people detected: %i\n', num_people);
