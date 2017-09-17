@@ -18,8 +18,6 @@ for i = 1:(num_layers - 1)
 end
 
 h = a';
-
-[~, p] = max(h, [], 2);
-p = p - 1;
+p = (h >= 0.3);
 
 end

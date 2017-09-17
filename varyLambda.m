@@ -41,7 +41,7 @@ for i = 1:length(lambda_vec)
   iters = 0;
   % since cost should go down every iteration, no need for absolute value
   % comparison, otherwise indicates error
-  while (costDiff > 0.01 || iters == 0) && iters < 50
+  while ((costDiff > 0.01 || iters == 0) && iters < 50)
     options = optimset('MaxIter', 1);   
     [params, thisCost] = fmincg(costFunctionS, params, options); 
     costDiff = prevCost - thisCost;

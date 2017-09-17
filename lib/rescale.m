@@ -1,4 +1,4 @@
-function ouputImage = rescale(inputImage, scaleFactor)
+function outputImage = rescale(inputImage, scaleFactor)
 
 %# Initializations:
 
