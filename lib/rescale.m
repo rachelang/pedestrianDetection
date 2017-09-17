@@ -1,6 +1,8 @@
+function ouputImage = rescale(inputImage, scaleFactor)
+
 %# Initializations:
 
-scale = [2 2];              %# The resolution scale factors: [rows columns]
+scale = [scaleFactor scaleFactor];              %# The resolution scale factors: [rows columns]
 oldSize = size(inputImage);                   %# Get the size of your image
 newSize = max(floor(scale.*oldSize(1:2)),1);  %# Compute the new image size
 
@@ -12,3 +14,5 @@ colIndex = min(round(((1:newSize(2))-0.5)./scale(2)+0.5),oldSize(2));
 %# Index old image to get new image:
 
 outputImage = inputImage(rowIndex,colIndex,:);
+
+end

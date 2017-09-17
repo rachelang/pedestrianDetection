@@ -3,9 +3,9 @@ clear; close all; clc
 addpath('./data'); addpath('./lib');
 
 % neural network specifications
-num_hidden_layers = 3;  % will be varied to get best result
+num_hidden_layers = 6;  % will be varied to get best result
 input_layer_size = 3024;
-hidden_layer_size = 25;
+hidden_layer_size = 5;
 num_labels = 2;
 
 nn_specs = [num_hidden_layers, input_layer_size, hidden_layer_size, num_labels];
@@ -30,12 +30,7 @@ m_train = size(X_train, 1);
 
 % visualize data
 displayData(reshape(X_train(123, :), 84, 36));
-%%%%
-%%%%
-%%%
-B = imresize(reshape(X_train(2,:), 84, 36), 2.5);
-size(B);
-displayData(B);
+
 % Neural Network Training
 % -----------------------
 
@@ -75,5 +70,30 @@ legend('Train', 'Cross Validation')
 xlabel('Lambda')
 ylabel('Error')
 
-img = bmpToMatrix('sidewalk_242.bmp');
-displayData(img);
+% load detection test image
+test_img = bmpToMatrix('sidewalk_242.bmp');
+[img_h, img_w] = size(test_img);
+min_img_h = round(img_h*0.1);
+
+%sliding window algorithm
+start_x = 1; start_y = 1;
+h_incr = max(round(84*0.1), 1);
+w_incr = max(round(36*0.1), 1);
+
+while(img_h <= min_img_h)
+    while(start_y + 84 - 1 <= img_h)
+        
+        while(start_x + 36 - 1 <= img_w)
+            window = test_img(start_y:start_y + 84 - 1, start_x:start_x + 36 - 1);
+            y_pred = predict(Theta, rollParameters(window));
+            if(y_pred == 1)
+                
+            end
+            start_x = start_x + w_incr;
+        end
+        
+        start_y = start_y + h_incr;
+    end
+    test_img = rescale(test_img, 0.9);
+    [img_h, img_w] = size(test_img);
+end
