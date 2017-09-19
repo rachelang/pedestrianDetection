@@ -1,6 +1,6 @@
 % setup
 clear; close all; clc
-addpath('./data'); addpath('./lib'); addpath('./sampleImages');
+addpath('./data'); addpath('./lib'); addpath('./sampleImages'); addpath('./trainedTheta');
 
 % neural network specifications
 num_hidden_layers = 1;  % will be varied to get best result
@@ -19,18 +19,18 @@ y_test_all = [ones(25608, 1); zeros(16235, 1)];
 % partition data (because of personal slow machine,
 % only chose some of dataset)
 rand_train = randperm(size(X_train_all, 1));
-X_train = X_train_all; %(rand_train(1:40000), :);
-y_train = y_train_all; %(rand_train(1:40000), :);
+X_train = X_train_all;
+y_train = y_train_all;
 
 halfTest = round(size(X_test_all, 1) / 2);
 rand_cv = randperm(halfTest); % half of test set -> cv
-X_cv = X_test_all(rand_cv(1:8000), :);
-y_cv = y_test_all(rand_cv(1:8000), :);
+X_cv = X_test_all(rand_cv, :);
+y_cv = y_test_all(rand_cv, :);
 
 rand_test = randperm(size(X_test_all, 1) - halfTest) + halfTest; % half of test set -> test
-X_test = X_test_all(rand_cv(1:8000), :);
-y_test = y_test_all(rand_cv(1:8000), :);
-%{
+X_test = X_test_all(rand_cv, :);
+y_test = y_test_all(rand_cv, :);
+
 % Neural Network Training
 % -----------------------
 
@@ -40,7 +40,7 @@ y_test = y_test_all(rand_cv(1:8000), :);
 max_iters = 40;
 
 % vary lambda to find best result
-lambda_vec = 0.01; %[0 0.001 0.003 0.01 0.03 0.1 0.3 1 3 10];  
+lambda_vec = [0 0.001 0.003 0.01 0.03 0.1 0.3 1 3 10];  
 [ThetaRolled, lambda_train_cost, lambda_cv_cost, bestLambda] = varyLambda(lambda_vec, ...
                                               max_iters, nn_specs, ...
                                               X_train, y_train, ...
@@ -51,10 +51,8 @@ Theta = reshapeParams(ThetaRolled, num_hidden_layers, ...
                                    hidden_layer_size, ...
                                    num_labels); 
 
-                               %%%%%%%%%%%%%
-                               %Theta = importdata('theta.mat');
-y_pred = predict(Theta, X_train); %%%%%%
-fprintf('\nTrain Set Accuracy: %f\n', mean(double(y_pred == y_train)) * 100);
+% Try using pre-trained theta to see results on real data:
+% Theta = importdata('1layer150units');
 
 y_pred = predict(Theta, X_test);
 fprintf('\nTest Set Accuracy: %f\n', mean(double(y_pred == y_test)) * 100); %%%%%%%
@@ -66,11 +64,6 @@ fprintf('\nTest Set Accuracy: %f\n', mean(double(y_pred == y_test)) * 100); %%%%
                                    X_test, y_test, bestLambda);
 
 fprintf('\nTest Set error: %f\n', test_cost);
-                                         
-y_pred = predict(Theta, X_test_all(1:1000, :)); %%%%%%5
-fprintf('\nPos test Set Accuracy: %f\n', mean(double(y_pred == y_test_all(1:1000, :)) * 100)); %%%%%%%
-y_pred = predict(Theta, X_test_all(30000:31000, :)); %%%%%%5
-fprintf('\nNon pos test Set Accuracy: %f\n', mean(double(y_pred == y_test_all(30000:31000, :)) * 100)); %%%%%%%
 
 % save trained theta
 save('theta.mat', 'Theta');
@@ -82,8 +75,7 @@ title('Error as function of lambda')
 legend('Train', 'Cross Validation')
 xlabel('Lambda')
 ylabel('Error')
-%}
-Theta = importdata('Theta.mat');
+
 % detection constants
 scale = 2;
 inc_percent = 0.3;
