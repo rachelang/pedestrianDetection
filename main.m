@@ -1,6 +1,7 @@
 % setup
 clear; close all; clc
 addpath('./data'); addpath('./lib'); addpath('./sampleImages'); addpath('./trainedTheta');
+addpath('./helpers'); addpath('./nnFunctions');
 
 % neural network specifications
 num_hidden_layers = 1;  % will be varied to get best result
