@@ -1,10 +1,10 @@
 # Pedestrian Detection
-### Neural Network with Sliding Window Image Pyramid
+## Neural Network with Sliding Window Image Pyramid
 
-Program to detect and classify pedestrians from an image. Acheived using 1 layer, 150 hidden unit neural network trained on the [Daimler dataset](http://www.gavrila.net/Datasets/Daimler_Pedestrian_Benchmark_D/Daimler_Pedestrian_Segmentatio/daimler_pedestrian_segmentatio.html) which was border-reduced; the adjusted data is included [here](https://github.com/rachelang/pedestrianDetection/tree/master/data). After training the classifier, I used the sliding window image pyramid method to scan test images, where positive areas would be marked with a bounding box as shown [below](#results).
+Program to detect and classify pedestrians from an image. Acheived using 1 layer, 150 hidden unit neural network trained on the [Daimler dataset](http://www.gavrila.net/Datasets/Daimler_Pedestrian_Benchmark_D/Daimler_Pedestrian_Segmentatio/daimler_pedestrian_segmentatio.html) which was border-reduced; the adjusted data is included [here](https://github.com/rachelang/pedestrianDetection/tree/master/data). After training the classifier, I used the sliding window image pyramid method to scan test images, where positive areas would be marked with a bounding box as shown [below](#results). Currently my program will produce multiple bounding boxes in areas of interest, so the next step will be to merge them to produce a clear, precise detection result.
 
 ## Challenges
-I attempted to use a multiclass approach to train the network, but because of the massive variety in non-positive data (many backgrounds) and the lack of negatvie data, a multiclass approach was producing too many false positives. That experiment can be found [here](https://github.com/rachelang/pedestrianDetection-variationMultiClass). Switching back to a
+I attempted to use a multiclass approach to train the network, but because of the massive variety in non-positive data (many variety in backgrounds) and the lack of negatvie data, a multiclass approach was producing too many false positives. That experiment can be found [here](https://github.com/rachelang/pedestrianDetection-variationMultiClass). To overcome this, I then switched back to having a single output unit in the network, and used a very high prediction threshold (h >= 0.90 to 0.95) to increase precision and obtain the results shown.
 
 <a name="results"></a>
 ## Results
