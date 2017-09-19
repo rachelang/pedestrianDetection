@@ -1,6 +1,6 @@
 % setup
 clear; close all; clc
-addpath('./data'); addpath('./lib');
+addpath('./data'); addpath('./lib'); addpath('./sampleImages');
 
 % neural network specifications
 num_hidden_layers = 1;  % will be varied to get best result
@@ -30,7 +30,7 @@ y_cv = y_test_all(rand_cv(1:8000), :);
 rand_test = randperm(size(X_test_all, 1) - halfTest) + halfTest; % half of test set -> test
 X_test = X_test_all(rand_cv(1:8000), :);
 y_test = y_test_all(rand_cv(1:8000), :);
-
+%{
 % Neural Network Training
 % -----------------------
 
@@ -73,7 +73,7 @@ y_pred = predict(Theta, X_test_all(30000:31000, :)); %%%%%%5
 fprintf('\nNon pos test Set Accuracy: %f\n', mean(double(y_pred == y_test_all(30000:31000, :)) * 100)); %%%%%%%
 
 % save trained theta
-save theta.mat Theta;
+save('theta.mat', 'Theta');
 
 % plot errors as function of lambda                                             
 figure;
@@ -82,14 +82,15 @@ title('Error as function of lambda')
 legend('Train', 'Cross Validation')
 xlabel('Lambda')
 ylabel('Error')
-
+%}
+Theta = importdata('Theta.mat');
 % detection constants
 scale = 2;
 inc_percent = 0.3;
 min_img_percent = 0.3;
 
 % load detection test image
-test_img = bmpToMatrix('sidewalk_242.bmp');
+test_img = bmpToMatrix('walkfeet_27.bmp');
 border_img = test_img;
 test_img = rescale(test_img, scale);
 [img_h, img_w] = size(test_img);
@@ -99,7 +100,7 @@ min_img_h = round(img_h*min_img_percent);
 start_x = 1; start_y = 1;
 h_incr = max(round(84*inc_percent), 1);
 w_incr = max(round(36*inc_percent), 1);
-num_people = 0;
+num_boxes = 0;
 
 fprintf('Sliding Window Detection: pyramid layers\n');
 fprintf('----------------------------------------\n');
@@ -111,12 +112,9 @@ while(img_h > min_img_h)
             y_pred = predict(Theta, rollParameters(window));
             
             if(y_pred == 1)
-                a = a+1;
+                num_boxes = num_boxes + 1;
                 border_img = drawBorder(border_img, max(floor(start_x/scale), 1), max(floor(start_y/scale), 1), ...
                                         floor(84/scale), floor(36/scale));
-                % all images of people detected
-                figure;
-                displayData(window);
             end
             start_x = start_x + w_incr;
         end
@@ -132,4 +130,4 @@ end
 
 % Final detection image
 displayData(border_img);
-fprintf('Number of people detected: %i\n', num_people);
+fprintf('Number of boxes (pos): %i\n', num_boxes);

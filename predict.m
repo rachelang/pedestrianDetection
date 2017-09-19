@@ -18,6 +18,6 @@ for i = 1:(num_layers - 1)
 end
 
 h = a';
-p = (h >= 0.95);
+p = (h >= 0.92);
 
 end
